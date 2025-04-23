@@ -69,10 +69,10 @@ if uploaded_file and logo:
                     c.drawImage(logo_path, margin, height - margin - logo_height, width=logo_width, height=logo_height, mask='auto')
 
                     remit_y = height - margin - 12
-                    c.setFont("Helvetica", 10)
+                    c.setFont("Helvetica", 9)
                     for j, line in enumerate(["HI-LINE, INC", "Remit to:", "PO BOX 972081", "Dallas, TX  75397-2081"]):
                         c.drawString(margin + logo_width + 0.2 * inch, remit_y - j * 10, line)
-                    c.setFont("Helvetica", 10)
+                    c.setFont("Helvetica", 9)
                     for j, line in enumerate(["Other Inquiries:", "2121 Valley View Lane", "Dallas, TX 75234", "United States of America"]):
                         c.drawString(margin + logo_width + 2.0 * inch, remit_y - j * 10, line)
 
@@ -80,26 +80,26 @@ if uploaded_file and logo:
                     c.drawString(width - margin - c.stringWidth("STATEMENT", "Helvetica-Bold", 14), height - margin - 10, "STATEMENT")
 
                     info = [["DATE", as_of_date], ["Customer ID", str(customer_id)], ["As of Date", as_of_date], ["Page", f"{page_num + 1} of {total_pages}"]]
-                    table = Table(info, colWidths=[0.95*inch, 1*inch])
+                    table = Table(info, colWidths=[0.9*inch, 0.95*inch])
                     table.setStyle(TableStyle([
                         ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
                         ('FONT', (0, 0), (-1, -1), 'Helvetica'),
-                        ('FONTSIZE', (0, 0), (-1, -1), 7.5),
+                        ('FONTSIZE', (0, 0), (-1, -1), 7),
                         ('ALIGN', (1, 0), (1, -1), 'CENTER'),
                     ]))
                     table.wrapOn(c, width, height)
                     table.drawOn(c, width - 2.25*inch, height - margin - 1.2 * inch)
 
-                    c.setFont("Helvetica", 10)
+                    c.setFont("Helvetica", 9)
                     c.drawString(width - 2.25*inch, height - margin - 1.45 * inch, "AMOUNT DUE")
-                    c.setFont("Helvetica", 10)
+                    c.setFont("Helvetica", 9)
                     c.drawString(width - 2.25*inch, height - margin - 1.58 * inch, f"${total_due:.2f}")
 
                     addr_x = 0.5 * inch
                     addr_y = height - margin - logo_height - 1.25 * inch
-                    c.setFont("Helvetica", 10)
+                    c.setFont("Helvetica", 9)
                     c.drawString(addr_x, addr_y, group.loc[0, 'bill2_name'])
-                    c.setFont("Helvetica", 10)
+                    c.setFont("Helvetica", 9)
                     addr_y -= 12
                     c.drawString(addr_x, addr_y, group.loc[0, 'bill2_address1'])
                     addr_y -= 12
@@ -131,7 +131,7 @@ if uploaded_file and logo:
                             c.drawString(x_positions[j], y, val)
                         y -= 14
 
-                    c.setFont("Helvetica", 10)
+                    c.setFont("Helvetica", 9)
                     c.drawString(label_x, 0.8 * inch, "Total Amount Due:")
                     c.drawString(amount_x, 0.8 * inch, f"${total_due:.2f}")
                     c.drawString(label_x, 0.6 * inch, "Amount Enclosed:")
