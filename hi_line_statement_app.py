@@ -3,6 +3,7 @@ import streamlit as st
 import pandas as pd
 import io
 import os
+import time
 from zipfile import ZipFile
 from reportlab.pdfgen import canvas
 from reportlab.platypus import Table, TableStyle
@@ -18,8 +19,7 @@ uploaded_file = st.file_uploader("Upload your Excel file with statement data", t
 logo = st.file_uploader("Upload the Hi-Line logo (JPG only)", type=["jpg"])
 
 if uploaded_file and logo:
-    with st.spinner("Generating customer statements..."):
-        # Save logo to disk and use absolute path
+    with st.spinner("Initializing..."):
         logo_filename = "temp_logo.jpg"
         with open(logo_filename, "wb") as f:
             f.write(logo.getbuffer())
@@ -28,10 +28,19 @@ if uploaded_file and logo:
         df = pd.ExcelFile(uploaded_file).parse('5 Data Only')
         grouped = df.groupby("customer_id")
 
+        customer_ids = list(grouped.groups.keys())
+        total_customers = len(customer_ids)
+
+        progress_bar = st.progress(0)
+        status_text = st.empty()
+        est_time_text = st.empty()
+
         zip_buffer = io.BytesIO()
         with ZipFile(zip_buffer, 'w') as zipf:
-            for customer_id, group in grouped:
-                group = group.reset_index(drop=True)
+            start_time = time.time()
+            for i, customer_id in enumerate(customer_ids):
+                loop_start = time.time()
+                group = grouped.get_group(customer_id).reset_index(drop=True)
                 customer_name = group.loc[0, "bill2_name"].replace(" ", "_").replace("/", "_")
                 file_name = f"{customer_name}_{customer_id}.pdf"
                 buffer = io.BytesIO()
@@ -60,10 +69,10 @@ if uploaded_file and logo:
                     c.drawImage(logo_path, margin, height - margin - logo_height, width=logo_width, height=logo_height, mask='auto')
 
                     remit_y = height - margin - 12
-                    for i, line in enumerate(["HI-LINE, INC", "Remit to:", "PO BOX 972081", "Dallas, TX  75397-2081"]):
-                        c.drawString(margin + logo_width + 0.2 * inch, remit_y - i * 10, line)
-                    for i, line in enumerate(["Other Inquiries:", "2121 Valley View Lane", "Dallas, TX 75234", "United States of America"]):
-                        c.drawString(margin + logo_width + 2.0 * inch, remit_y - i * 10, line)
+                    for j, line in enumerate(["HI-LINE, INC", "Remit to:", "PO BOX 972081", "Dallas, TX  75397-2081"]):
+                        c.drawString(margin + logo_width + 0.2 * inch, remit_y - j * 10, line)
+                    for j, line in enumerate(["Other Inquiries:", "2121 Valley View Lane", "Dallas, TX 75234", "United States of America"]):
+                        c.drawString(margin + logo_width + 2.0 * inch, remit_y - j * 10, line)
 
                     c.setFont("Helvetica-Bold", 14)
                     c.drawString(width - margin - c.stringWidth("STATEMENT", "Helvetica-Bold", 14), height - margin - 10, "STATEMENT")
@@ -99,8 +108,8 @@ if uploaded_file and logo:
 
                     y = addr_y - 30
                     c.setFont("Helvetica-Bold", 9)
-                    for i, header in enumerate(headers):
-                        c.drawString(x_positions[i], y, header)
+                    for k, header in enumerate(headers):
+                        c.drawString(x_positions[k], y, header)
                     y -= 14
                     c.setFont("Helvetica", 9)
 
@@ -130,6 +139,14 @@ if uploaded_file and logo:
 
                 c.save()
                 zipf.writestr(file_name, buffer.getvalue())
+
+                # Update progress bar and ETA
+                elapsed = time.time() - start_time
+                avg_time = elapsed / (i + 1)
+                eta = avg_time * (total_customers - i - 1)
+                progress_bar.progress((i + 1) / total_customers)
+                status_text.text(f"Processing: {customer_name}")
+                est_time_text.text(f"⏱ Estimated time remaining: {int(eta)} seconds")
 
         zip_buffer.seek(0)
         st.success("✅ All statements generated!")
