@@ -19,6 +19,11 @@ logo = st.file_uploader("Upload the Hi-Line logo (JPG only)", type=["jpg"])
 
 if uploaded_file and logo:
     with st.spinner("Generating customer statements..."):
+        # Save logo to a temporary file
+        logo_path = "temp_logo.jpg"
+        with open(logo_path, "wb") as f:
+            f.write(logo.getbuffer())
+
         df = pd.ExcelFile(uploaded_file).parse('5 Data Only')
         grouped = df.groupby("customer_id")
 
@@ -51,7 +56,6 @@ if uploaded_file and logo:
                     end = start + rows_per_page
                     subset = group.iloc[start:end]
 
-                    logo_path = logo
                     c.drawImage(logo_path, margin, height - margin - logo_height, width=logo_width, height=logo_height, mask='auto')
 
                     # Remit and inquiries
@@ -61,7 +65,6 @@ if uploaded_file and logo:
                     for i, line in enumerate(["Other Inquiries:", "2121 Valley View Lane", "Dallas, TX 75234", "United States of America"]):
                         c.drawString(margin + logo_width + 2.0 * inch, remit_y - i * 10, line)
 
-                    # Top right: STATEMENT and info box
                     c.setFont("Helvetica-Bold", 14)
                     c.drawString(width - margin - c.stringWidth("STATEMENT", "Helvetica-Bold", 14), height - margin - 10, "STATEMENT")
 
@@ -76,13 +79,11 @@ if uploaded_file and logo:
                     table.wrapOn(c, width, height)
                     table.drawOn(c, width - 2.25*inch, height - margin - 1.2 * inch)
 
-                    # Amount Due section
                     c.setFont("Helvetica-Bold", 10)
                     c.drawString(width - 2.25*inch, height - margin - 1.45 * inch, "AMOUNT DUE")
                     c.setFont("Helvetica", 10)
                     c.drawString(width - 2.25*inch, height - margin - 1.58 * inch, f"${total_due:.2f}")
 
-                    # Customer address (0.5" from left)
                     addr_x = 0.5 * inch
                     addr_y = height - margin - logo_height - 1.25 * inch
                     c.setFont("Helvetica-Bold", 10)
@@ -96,7 +97,6 @@ if uploaded_file and logo:
                         addr_y -= 12
                     c.drawString(addr_x, addr_y, city_zip)
 
-                    # Table headers and invoice rows
                     y = addr_y - 30
                     c.setFont("Helvetica-Bold", 9)
                     for i, header in enumerate(headers):
@@ -120,7 +120,6 @@ if uploaded_file and logo:
                             c.drawString(x_positions[j], y, val)
                         y -= 14
 
-                    # Footer
                     c.setFont("Helvetica-Bold", 10)
                     c.drawString(label_x, 0.8 * inch, "Total Amount Due:")
                     c.drawString(amount_x, 0.8 * inch, f"${total_due:.2f}")
