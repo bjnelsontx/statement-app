@@ -69,8 +69,10 @@ if uploaded_file and logo:
                     c.drawImage(logo_path, margin, height - margin - logo_height, width=logo_width, height=logo_height, mask='auto')
 
                     remit_y = height - margin - 12
+                    c.setFont("Helvetica", 10)
                     for j, line in enumerate(["HI-LINE, INC", "Remit to:", "PO BOX 972081", "Dallas, TX  75397-2081"]):
                         c.drawString(margin + logo_width + 0.2 * inch, remit_y - j * 10, line)
+                    c.setFont("Helvetica", 10)
                     for j, line in enumerate(["Other Inquiries:", "2121 Valley View Lane", "Dallas, TX 75234", "United States of America"]):
                         c.drawString(margin + logo_width + 2.0 * inch, remit_y - j * 10, line)
 
@@ -88,14 +90,14 @@ if uploaded_file and logo:
                     table.wrapOn(c, width, height)
                     table.drawOn(c, width - 2.25*inch, height - margin - 1.2 * inch)
 
-                    c.setFont("Helvetica-Bold", 10)
+                    c.setFont("Helvetica", 10)
                     c.drawString(width - 2.25*inch, height - margin - 1.45 * inch, "AMOUNT DUE")
                     c.setFont("Helvetica", 10)
                     c.drawString(width - 2.25*inch, height - margin - 1.58 * inch, f"${total_due:.2f}")
 
                     addr_x = 0.5 * inch
                     addr_y = height - margin - logo_height - 1.25 * inch
-                    c.setFont("Helvetica-Bold", 10)
+                    c.setFont("Helvetica", 10)
                     c.drawString(addr_x, addr_y, group.loc[0, 'bill2_name'])
                     c.setFont("Helvetica", 10)
                     addr_y -= 12
@@ -129,7 +131,7 @@ if uploaded_file and logo:
                             c.drawString(x_positions[j], y, val)
                         y -= 14
 
-                    c.setFont("Helvetica-Bold", 10)
+                    c.setFont("Helvetica", 10)
                     c.drawString(label_x, 0.8 * inch, "Total Amount Due:")
                     c.drawString(amount_x, 0.8 * inch, f"${total_due:.2f}")
                     c.drawString(label_x, 0.6 * inch, "Amount Enclosed:")
