@@ -19,10 +19,11 @@ logo = st.file_uploader("Upload the Hi-Line logo (JPG only)", type=["jpg"])
 
 if uploaded_file and logo:
     with st.spinner("Generating customer statements..."):
-        # Save logo to a temporary file
-        logo_path = "temp_logo.jpg"
-        with open(logo_path, "wb") as f:
+        # Save logo to disk and use absolute path
+        logo_filename = "temp_logo.jpg"
+        with open(logo_filename, "wb") as f:
             f.write(logo.getbuffer())
+        logo_path = os.path.abspath(logo_filename)
 
         df = pd.ExcelFile(uploaded_file).parse('5 Data Only')
         grouped = df.groupby("customer_id")
@@ -58,7 +59,6 @@ if uploaded_file and logo:
 
                     c.drawImage(logo_path, margin, height - margin - logo_height, width=logo_width, height=logo_height, mask='auto')
 
-                    # Remit and inquiries
                     remit_y = height - margin - 12
                     for i, line in enumerate(["HI-LINE, INC", "Remit to:", "PO BOX 972081", "Dallas, TX  75397-2081"]):
                         c.drawString(margin + logo_width + 0.2 * inch, remit_y - i * 10, line)
