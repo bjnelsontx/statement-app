@@ -1,6 +1,7 @@
 
 import streamlit as st
 import pandas as pd
+import time
 import io
 from zipfile import ZipFile
 from reportlab.pdfgen import canvas
@@ -15,12 +16,12 @@ st.set_page_config(page_title="Hi-Line Statement Generator", layout="centered")
 st.title("📄 Hi-Line Statement Generator")
 
 uploaded_excel = st.file_uploader("Upload your Excel file", type=["xlsx"])
-if uploaded_excel:
+if uploaded_excel is not None:
     logo_path = "HI-LINE logo DK Red.jpg"
     try:
         logo_image = ImageReader(logo_path)
     except Exception:
-        st.error("❌ Could not find or load 'HI-LINE logo DK Red.jpg'. Make sure it's in your Streamlit repo.")
+        st.error("❌ Could not find or load 'logo.jpg'. Make sure it's in your Streamlit repo.")
         st.stop()
 
     try:
@@ -31,7 +32,9 @@ if uploaded_excel:
         zip_buffer = io.BytesIO()
         with ZipFile(zip_buffer, "w") as zipf:
             grouped = df.groupby("customer_id")
-            for customer_id, group in grouped:
+            progress_bar = st.progress(0)
+    total_customers = len(grouped)
+    for i, (customer_id, group) in enumerate(grouped):
                 group = group.reset_index(drop=True)
                 customer_name = group.loc[0, "bill2_name"].replace(" ", "_").replace("/", "_")
                 pdf_buffer = io.BytesIO()
@@ -128,6 +131,8 @@ if uploaded_excel:
                     c.showPage()
 
                 c.save()
+        progress_bar.progress((i + 1) / total_customers)
+        time.sleep(0.1)
                 zipf.writestr(f"{customer_name}_{customer_id}.pdf", pdf_buffer.getvalue())
 
         zip_buffer.seek(0)
