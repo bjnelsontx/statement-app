@@ -16,11 +16,11 @@ st.title("📄 Hi-Line Statement Generator")
 
 uploaded_excel = st.file_uploader("Upload your Excel file", type=["xlsx"])
 if uploaded_excel:
-    logo_path = "logo.jpg"
+    logo_path = "HI-LINE logo DK Red.jpg"
     try:
         logo_image = ImageReader(logo_path)
     except Exception:
-        st.error("❌ Could not find or load 'logo.jpg'. Make sure it's in your Streamlit repo.")
+        st.error("❌ Could not find or load 'HI-LINE logo DK Red.jpg'. Make sure it's in your Streamlit repo.")
         st.stop()
 
     try:
